@@ -7,24 +7,26 @@ function main(){
     var trainingSet = generateTestData(0, 100)
     var testSet = generateTestData(10000, 11000)
 
-    var weights = getRandomWeights()
-    var bestWeights = cloneObject(weights)
+    var weights, bestWeights
     var bestCorrectness = -1
 
     for (var i=0; i<ITERATIONS; i++){
         weights = getRandomWeights()
+
         var correctness = getCorrectness(weights, trainingSet)
 
         if (correctness > bestCorrectness) {
-            console.log("Iteration " + i + ": New best correctness in training set:", correctness * 100, "%")
             bestCorrectness = correctness
             bestWeights = cloneObject(weights)
 
             var testSetCorrectness = getCorrectness(weights, testSet)
-            console.log("Correctness in test set: ", testSetCorrectness * 100, "%\n")
+
+            console.log("New best correctness in training (test) set:", correctness * 100, "%", "(" + testSetCorrectness * 100 + "%)")
         }
     }
 }
+
+
 
 function getRandomWeights(){
     return {
@@ -43,12 +45,11 @@ function getRandomLayerWeights(inputSize, neuronCount){
 
 function predict(inputLayer, weights){
     var neuronLayers = [
-        weights.hiddenLayer.map(weight => new Neuron(weight)),
-        weights.outputLayer.map(weight => new Neuron(weight))
+        weights.hiddenLayer.map(neuronWeights => new Neuron(neuronWeights)),
+        weights.outputLayer.map(neuronWeights => new Neuron(neuronWeights))
     ]
 
     var previousLayerResult = inputLayer;
-
     neuronLayers.forEach(function(layer){
         previousLayerResult = layer.map(neuron => neuron.process(previousLayerResult))
     })
@@ -72,6 +73,7 @@ function getCorrectness(weights, set){
 
     return correctResults / set.length
 }
+
 
 function cloneObject(obj){
     return JSON.parse(JSON.stringify(obj))
@@ -127,4 +129,4 @@ Neuron.prototype.process = function(inputs){
     return sum;
 }
 
-main();
+main()
